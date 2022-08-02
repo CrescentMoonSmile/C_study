@@ -54,7 +54,7 @@
 
 （4）long long类型
 数据类型大小是 8 字节，能表示的数值范围是
--2^(63) ~ 2^(63)-1 (这个数足够大了)
+-2^(64-1) ~ 2^(64-1)-1 (这个数足够大了)
 打印类型是 %lld ，使用格式为 long long 名 = 值;
 
 ###  2.无符号整型
@@ -78,7 +78,7 @@
 
 （4）unsigned long long 类型
 数据类型大小是 8 字节，能表示的数值范围是
-0~2^63-1
+0~2^64-1
 打印类型是 %llu ，使用格式为 unsigned long long 名 = 值;
 
 
@@ -89,6 +89,7 @@
 
   ~~~C
   #include <stdio.h>
+  #include <stdlib.h>
   #include <float.h>
   #include <limits.h>
    
@@ -114,10 +115,10 @@
      system("pause"); 
      return 0;
   }
-  ~~~
-
-  结果如下
-
+~~~
+  
+结果如下
+  
   ~~~C
   char 存储大小            : 1
   unsigned char 存储大小   : 1
@@ -136,9 +137,39 @@
   long int 存储大小        : 4
   long long 存储大小       : 8
   long double 存储大小     : 16
-  ~~~
-
+~~~
   
+* `根据C99，long>=4个字节，int>=2字节
+
+  |       类型说明符       |           等价类型           | 数据模型中的位宽 |        |        |        |        |
+  | :--------------------: | :--------------------------: | :--------------: | :----: | :----: | ------ | ------ |
+  |                        |                              |      C 标准      |  LP32  | ILP32  | LLP64  | LP64   |
+  |         short          |          short int           |   至少 **16**    | **16** | **16** | **16** | **16** |
+  |       short int        |                              |                  |        |        |        |        |
+  |      signed short      |                              |                  |        |        |        |        |
+  |    signed short int    |                              |                  |        |        |        |        |
+  |     unsigned short     |      unsigned short int      |                  |        |        |        |        |
+  |   unsigned short int   |                              |                  |        |        |        |        |
+  |                        |                              |                  |        |        |        |        |
+  |          int           |             int              |   至少 **16**    | **16** | **32** | **32** | **32** |
+  |         signed         |                              |                  |        |        |        |        |
+  |       signed int       |                              |                  |        |        |        |        |
+  |        unsigned        |         unsigned int         |                  |        |        |        |        |
+  |      unsigned int      |                              |                  |        |        |        |        |
+  |                        |                              |                  |        |        |        |        |
+  |          long          |           long int           |   至少 **32**    | **32** | **32** | **32** | **64** |
+  |        long int        |                              |                  |        |        |        |        |
+  |      signed long       |                              |                  |        |        |        |        |
+  |    signed long int     |                              |                  |        |        |        |        |
+  |     unsigned long      |      unsigned long int       |                  |        |        |        |        |
+  |   unsigned long int    |                              |                  |        |        |        |        |
+  |                        |                              |                  |        |        |        |        |
+  |       long long        |     long long int (C99)      |   至少 **64**    | **64** | **64** | **64** | **64** |
+  |     long long int      |                              |                  |        |        |        |        |
+  |    signed long long    |                              |                  |        |        |        |        |
+  |  signed long long int  |                              |                  |        |        |        |        |
+  |   unsigned long long   | unsigned long long int (C99) |                  |        |        |        |        |
+  | unsigned long long int |                              |                  |        |        |        |        |
 
 ###  4.编码习惯
 
@@ -186,7 +217,32 @@
 
 * 
 
-##  字符型
+##  字符型（char）
+
+* 作用：字符型变量用于存储一个单一字符
+
+* 所占空间：1个字节（1 byte=8 bits）
+
+* 变量赋值方式：char a = 'A'; char b = '\n'；等
+
+  * 所赋的值需要用一对英文半角格式的单引号（''）把字符括起来
+  * 该过程不是把字符本身放入变量的内存单元，而是将该字符对应的ASCII编码存储到变量的存储单元内
+
+* 打印格式：%c
+
+* 数值范围：
+
+  * 有符号：$-2^{8-1}到2^{8-1}-1$，即（-128~127）
+  * 无符号：$0到2^8-1$，即（0~255）
+
+* 常用的ASCII码为
+
+  * 'A'：65
+  * 'a'：97，大小写相差32
+  * '0'：48
+
+  * '\n'：10
+  * '\0'：0，字符串的结束符，任何字符串之后都会自动加上'\0'
 
 ##  实型
 
