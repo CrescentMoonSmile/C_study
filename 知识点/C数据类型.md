@@ -419,6 +419,8 @@ void 类型指定没有可用的值。它通常用于以下三种情况下：
 | 2    | **函数参数为空** C 中有各种函数不接受任何参数。不带参数的函数可以接受一个 void。例如 **int rand(void);** |
 | 3    | **指针指向 void** 类型为 void * 的指针代表对象的地址，而不是类型。例如，内存分配函数 **void \*malloc( size_t size );** 返回指向 void 的指针，可以转换为任何数据类型。 |
 
+* void在32位编译器中占1个字节，***64位还未测试***
+
 ##  指针类型
 
 * 作用：指针即内存地址，指针变量用于存放内存地址的变量
@@ -428,18 +430,67 @@ void 类型指定没有可用的值。它通常用于以下三种情况下：
   ~~~C
   type * var_name;
   ~~~
+  
+* 占据空间大小：4个字节（32位机）/8个字节（64位机）
 
+  ~~~C
+  #include <stdio.h>
+  int main()
+  {
+      printf("char *占%d字节\n",sizeof(char *));
+      printf("int *占%d字节\n",sizeof(int *));
+      printf("long *占%d字节\n",sizeof(long *));
+      printf("float *占%d字节\n",sizeof(float *));
+      printf("double *占%d字节\n",sizeof(double *));
+      printf("long double *占%d字节\n",sizeof(long double *));
+      return 0;
+  }
+  ~~~
 
+  效果如下
 
-###  指针算数运算
+  ~~~C
+  //32位编译器
+  char *占4字节
+  int *占4字节
+  long *占4字节
+  float *占4字节
+  double *占4字节
+  long double *占4字节
+  
+  Process returned 0 (0x0)   execution time : 0.016 s
+  Press any key to continue.
+    
+  //64位编译器
+  ~~~
 
-
-
-###  值传递
-
-
+* 打印类型是 %p ，使用格式为 type * 名 = 值;
 
 ##  数组类型
+
+* 定义方式： 
+
+  ~~~C
+  type arrayName[arrraySize]
+  ~~~
+
+  注：数组名与[arrraySize]之间有无空格，有多少空格，都不影响
+
+* 占据大小由数据类型和个数决定
+
+* 需注意
+
+  * > 1、字符数组的初始化
+    >
+    > char a[9]={'1','2','3','4','5','6','7','8','9'};//长度为9，最后一个元素为'9'
+    >
+    > //初值个数小于数组长度，则只将这些字符赋给数组中前面那些元素，其余的元素自动定为空字符（即'\0'）
+    >
+    > char a[9]={'1','2','3','4','5','6','7','8'};//长度为9，最后一个元素为'\0'
+    >
+    > 2、字符串常量初始化数组。
+    >
+    > char c[ ]={‘c’，‘ ’，‘p’，‘r’，‘o'，'g'，'r'，'a'，'m'}；可写为：char c[ ]={"C program"} 或去掉{}写为：char c[ ]="C program";注意：此时数组c的长度不是9，而是10。因为字符串常量的最后由系统加上一个'\0'
 
 ##  结构类型
 
