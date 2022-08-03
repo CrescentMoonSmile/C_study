@@ -20,3 +20,6 @@
 四、刷题资源
 1、AlogMooc
 2、剑指offer
+
+五、学习网站 
+1、Linux C编程一站式学习 http://akaedu.github.io/book/index.html
