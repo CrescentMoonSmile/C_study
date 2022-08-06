@@ -971,6 +971,7 @@ quotient = x%m>0 ? x/n+1:x/n;
 ##  二十二、while语句
 
 * 迭代（Iteration）：重复反馈过程的活动，其目的通常是为了逼近所需目标或结果。每一次对过程的重复称为一次“迭代”，而每一次迭代得到的结果会作为下一次迭代的初始值
+* while语句语法：语句 → while (控制表达式) 语句
 * 循环（Loop）：重复多次执行“判断控制表达式的值，为真时执行子语句”的控制流程
 * 子语句称为**循环体**
 * 累加器（Accumulator）：把每次循环的中间结果累积起来，循环结束后得到的累积值就是最终结果
@@ -992,4 +993,1205 @@ quotient = x%m>0 ? x/n+1:x/n;
   3. 在[第 2 节 “if/else语句”](http://akaedu.github.io/book/ch04s02.html#cond.ifelse)的习题1写过取一个整数的个位和十位的表达式，这两个表达式怎样用到程序中？
 * 答：
 
-##  do/while语句
+##  二十三、do/while语句
+
+* `do/while`语句的语法是：
+
+  语句 → do 语句 while (控制表达式);
+
+* while与do/while的区别：`while`语句先测试控制表达式的值再执行循环体，而`do/while`语句先执行循环体再测试控制表达式的值。
+
+  * 即while可能一次也不执行，do/while至少执行一次循环体
+
+* **写循环一定要注意循环即将结束时控制表达式的临界条件是否准确**
+
+##  二十四、for语句
+
+* `for`语句的语法是：
+
+  for (控制表达式1; 控制表达式2; 控制表达式3) 语句
+
+  * 控制表达式1和3都可以为空，**控制表达式2是必不可少的**
+  * `for (;1;) {...}`等价于`while (1) {...}`死循环
+  * C语言规定，如果控制表达式2为空，则认为控制表达式2的值为真，因此死循环也可以写成`for (;;) {...}`
+
+*  for 循环的控制流：[C for 循环 | 菜鸟教程 (runoob.com)](https://www.runoob.com/cprogramming/c-for-loop.html)
+
+  1. **init** 会首先被执行，且只会执行一次。这一步允许您声明并初始化任何循环控制变量。您也可以不在这里写任何语句，只要有一个分号出现即可。
+  2. 接下来，会判断 **condition**。如果为真，则执行循环主体。如果为假，则不执行循环主体，且控制流会跳转到紧接着 for 循环的下一条语句。
+  3. 在执行完 for 循环主体后，控制流会跳回上面的 **increment** 语句。该语句允许您更新循环控制变量。该语句可以留空，只要在条件后有一个分号出现即可。
+  4. 条件再次被判断。如果为真，则执行循环，这个过程会不断重复（循环主体，然后增加步值，再然后重新判断条件）。在条件变为假时，for 循环终止。
+
+  ![C 中的 for 循环](./images_学习笔记\for控制流流程图.jpg)
+
+* 前缀`++`，`--`和后缀`++`，`--`的区别
+
+  > 如果把`i++`这个表达式看作一个函数调用，传入一个参数返回一个值，返回值就等于参数值（而不是参数值加1），此外也产生一个Side Effect，就是把变量`i`的值增加了1，它和`++i`的区别就在于返回值不同。同理，`--i`返回减1之后的值，而`i--`返回减1之前的值，但这两个表达式都产生同样的Side Effect，就是把变量`i`的值减了1。
+
+  * `++`称为前缀自增运算符（Prefix Increment Operator）
+  * `--`前缀自减运算符（Prefix Decrement Operator）
+  * `++`后缀自增运算符（Postfix Increment Operator）
+  * `--`后缀自减运算符（Postfix Decrement Operator）
+
+* 问题：`a+++++b`这个表达式如何理解？应该理解成`a++ ++ +b`还是`a++ + ++b`，还是`a + ++ ++b`呢？
+
+  * 应该按第一种方式理解
+
+  * **编译的过程分为词法解析和语法解析两个阶段，在词法解析阶段，编译器总是从前到后找最长的合法Token**
+
+  * 解析
+
+    > 把这个表达式从前到后解析，变量名`a`是一个Token，`a`后面有两个以上的+号，在C语言中一个+号是合法的Token（可以是加法运算符或正号），两个+号也是合法的Token（可以是自增运算符），根据最长匹配原则，编译器绝不会止步于一个+号，而一定会把两个+号当作一个Token。再往后解析仍然有两个以上的+号，所以又是一个++运算符。再往后解析只剩一个+号了，是加法运算符。再往后解析是变量名`b`。词法解析之后进入下一阶段语法解析，`a`是一个表达式，表达式++还是表达式，表达式再++还是表达式，表达式再+b还是表达式，语法上没有问题。最后编译器会做一些基本的语义分析，这时就有问题了，++运算符要求操作数能做左值，`a`能做左值所以`a++`没问题，但表达式`a++`的值只能做右值，不能再++了，所以最终编译器会报错。
+
+###  问题
+
+* 问题：`a+++++b`这个表达式如何理解？应该理解成`a++ ++ +b`还是`a++ + ++b`，还是`a + ++ ++b`呢？**是否真的如分析所说，为第一种，且编译器会报错**
+
+##  二十五、break和cotinue语句
+
+* **在多重循环中， break和continue只对当层循环有用，对外层循环没有影响。**
+
+* break语句：
+
+  * 用于跳出switch语句块
+  * 跳出循环体（`break`只能跳出最内层的循环）
+
+* continue语句：终止当前循环后又回到循环体的开头准备执行下一次循环
+
+  * continue语句不能直接用于switch语句但可用于嵌入循环语句中的switch语句
+
+    ~~~C
+    //编译器报错
+    int a=1;
+    	switch(a)
+    	{
+    		case 1:
+    			printf("111");
+    			continue;
+    		case 2:
+    			printf("222");
+    		default:
+    			continue;
+    	}
+    
+    //可跳出switch语句
+    int a=1, i;
+    	for(i=0;i<10;i++)
+    	{
+    		switch(a)
+    		{
+    			case 1:
+    				printf("111\n");
+    				continue;
+    			case 2:
+    				printf("222\n");
+    			default:
+    				continue;
+    		}
+    	}
+    
+    原文链接：https://blog.csdn.net/qq_42942881/article/details/104542233
+    ~~~
+
+* 对于`while`循环和`do/while`循环，执行`continue`语句之后测试控制表达式，如果值为真则继续执行下一次循环
+
+* 对于`for`循环，执行`continue`语句之后首先计算控制表达式3，然后测试控制表达式2，如果值为真则继续执行下一次循环
+
+###  问题
+
+* 问：为何break语句可以跳出switch语句，而continue不行？根本区别是什么
+* 答：
+* 问：continue语句跳出嵌入循环体的switch语句是真的跳出switch语句还是在跳出循环体时顺便跳出switch，本质还是跳出循环体？
+* 答：
+* 问：求素数这个程序只是为了说明`break`和`continue`的用法才这么写的，其实完全可以不用`break`和`continue`，请读者修改一下控制流程，去掉`break`和`continue`而保持功能不变。
+* 答：
+* 问：上一节讲过怎样把`for`循环改写成等价的`while`循环，但也提到如果循环体中有`continue`语句这两种形式就不等价了，想一想为什么不等价了？
+* 答：
+
+##  二十六、嵌套循环
+
+* C 语言中 **嵌套 for 循环** 语句的语法：[C 嵌套循环 | 菜鸟教程 (runoob.com)](https://www.runoob.com/cprogramming/c-nested-loops.html)
+
+  ```c
+  for (initialization; condition; increment/decrement)
+  {
+      statement(s);
+      for (initialization; condition; increment/decrement)
+      {
+          statement(s);
+          ... ... ...
+      }
+      ... ... ...
+  }
+  ```
+
+  流程图：
+
+  ![img](./images_学习笔记\c_for嵌套循环流程图.svg)
+
+* C 语言中 **嵌套 while 循环** 语句的语法：
+
+  ```c
+  while (condition1)
+  {
+      statement(s);
+      while (condition2)
+      {
+          statement(s);
+          ... ... ...
+      }
+      ... ... ...
+  }
+  ```
+
+  流程图：
+
+  ![img](./images_学习笔记\c_while嵌套循环流程图.svg)
+
+* C 语言中 **嵌套 do...while 循环** 语句的语法：
+
+  ```c
+  do
+  {
+      statement(s);
+      do
+      {
+          statement(s);
+          ... ... ...
+      }while (condition2);
+      ... ... ...
+  }while (condition1);
+  ```
+
+  流程图：
+
+  ![img](./images_学习笔记\c_do_while嵌套循环流程图.svg)
+
+* 关于嵌套循环有一点值得注意，您可以在任何类型的循环内嵌套其他任何类型的循环。比如，一个 for 循环可以嵌套在一个 while 循环内，反之亦然。
+
+###  习题
+
+使用for、while、do/while三种循环实现下列习题
+
+* 上面打印的小九九有一半数据是重复的，因为8*9和9*8的结果一样。请修改程序打印这样的小九九：
+
+  ```c
+  1	
+  2	4	
+  3	6	9	
+  4	8	12	16	
+  5	10	15	20	25	
+  6	12	18	24	30	36	
+  7	14	21	28	35	42	49	
+  8	16	24	32	40	48	56	64	
+  9	18	27	36	45	54	63	72	81
+  ```
+
+* 编写函数`diamond`打印一个菱形。如果调用`diamond(3, '*')`则打印：
+
+  ```c
+  	*
+  *	*	*
+  	*
+  ```
+
+  如果调用`diamond(5, '+')`则打印：
+
+  ```c
+  		+
+  	+	+	+
+  +	+	+	+	+
+  	+	+	+
+  		+
+  ```
+
+  如果用偶数做参数则打印错误提示。
+
+##  二十七、goto语句和标号
+
+###  goto语句
+
+* `goto`语句：实现无条件跳转
+
+* 使用场景：在一个嵌套循环中遇到某个错误条件需要立即跳出最外层循环做出错处理
+
+  ```c
+  for (...)
+  	for (...) {
+  		...
+  		if (出现错误条件)
+  			goto error;
+  	}
+  error:
+  	出错处理;
+  ```
+
+  * `error:`叫做标号（Label）。任何语句前面都可以加若干个标号，每个标号的命名也要遵循标识符的命名规则
+  * **在任何其它场合都不要轻易考虑使用`goto`语句。**有些编程语言（如C++）中有异常（Exception）处理的语法，可以代替`goto`和`setjmp/longjmp`的这种用法。
+
+* `goto`只能跳转到同一个函数中的某个标号处，而不能跳到别的函数中
+
+* 
+
+* `goto`语句不是必须存在的，显然可以用别的办法替代，比如上面的代码段可以改写为：
+
+  ```c
+  int cond = 0; /* bool variable indicating error condition */
+  for (...) {
+  	for (...) {
+  		...
+  		if (出现错误条件) {
+  			cond = 1;
+  			break;
+  		}
+  	}
+  	if (cond)
+  		break;
+  }
+  if (cond)
+  	出错处理;
+  ```
+
+###  标号
+
+* `case`和`default`后面也要跟冒号（:号，Colon），事实上它们是两种特殊的标号。和标号有关的语法规则如下：
+
+  语句 → 标识符: 语句
+  语句 → case 常量表达式: 语句
+  语句 → default: 语句
+
+  ###  有趣的知识点扩展
+
+* 有兴趣的读者可以在网上查找有关Duff's Device的资料，Duff's Device是一段很有意思的代码，正是利用“`switch`的语句块和循环结构的语句块没有本质区别”这一点实现了一个巧妙的代码优化
+* C标准库函数`setjmp`和`longjmp`配合起来可以实现函数间的跳转，但只能从被调用的函数跳回到它的直接或间接调用者（同时从栈空间弹出一个或多个栈帧），而不能从一个函数跳转到另一个和它毫不相干的函数中。`setjmp/longjmp`函数主要也是用于出错处理，比如函数`A`调用函数`B`，函数`B`调用函数`C`，如果在`C`中出现某个错误条件，使得函数`B`和`C`继续执行下去都没有意义了，可以利用`setjmp/longjmp`机制快速返回到函数`A`做出错处理，本书不详细介绍这种机制，有兴趣的读者可参考[[APUE2e\]](http://akaedu.github.io/book/bi01.html#bibli.apue)。
+
+##  二十八、复合类型与结构体
+
+* 基本类型（Primitive Type）：最基本的、不可再分的数据类型
+
+* 复合类型（Compound Type）：根据语法规则由基本类型组合而成的类型
+
+* [[SICP\]](http://akaedu.github.io/book/bi01.html#bibli.sicp)指出，在学习一门编程语言时要特别注意以下三个方面：
+
+  1. 这门语言提供了哪些Primitive，比如基本类型，比如基本运算符、表达式和语句。
+  2. 这门语言提供了哪些组合规则，比如基本类型如何组成复合类型，比如简单的表达式和语句如何组成复杂的表达式和语句。
+  3. 这门语言提供了哪些抽象机制，包括数据抽象（Data Abstraction）和过程抽象（Procedure Abstraction）。
+
+* 结构体定义方式：[C 结构体 | 菜鸟教程 (runoob.com)](https://www.runoob.com/cprogramming/c-structures.html)
+
+* .运算符（.号，Period）可用于访问结构体成员
+
+* 
+
+  ```c
+  double x = 3.0;
+  struct complex_struct z1 = { x, 4.0, }; /* z1.x=3.0, z1.y=4.0 */
+  struct complex_struct z2 = { 3.0, }; /* z2.x=3.0, z2.y=0.0 */
+  struct complex_struct z3 = { 0 }; /* z3.x=0.0, z3.y=0.0 */
+  ```
+
+  * 如果Initializer中的数据比结构体的成员多，编译器会报错，但如果只是末尾多个逗号则不算错
+
+  * 如果Initializer中的数据比结构体的成员少，未指定的成员将用0来初始化，就像未初始化的全局变量一样。
+
+  * **`z1`必须是局部变量才能用另一个变量`x`的值来初始化它的成员，如果是全局变量就只能用常量表达式来初始化**
+
+  * {}这种语法不能用于结构体的赋值，例如这样是错误的：
+
+    ```c
+    struct complex_struct z1;
+    z1 = { 3.0, 4.0 };
+    ```
+
+    以前我们初始化基本类型的变量所使用的Initializer都是表达式，表达式当然也可以用来赋值，但现在这种由{}括起来的Initializer并不是表达式，所以不能用来赋值[[14](http://akaedu.github.io/book/ch07s01.html#ftn.id2730593)]
+
+    ###  困惑
+
+* Initializer的语法总结如下：
+
+  Initializer → 表达式
+  Initializer → { 初始化列表 } 
+  初始化列表 → Designated-Initializer, Designated-Initializer, ...
+  （最后一个Designated-Initializer末尾可以有一个多余的,号）
+  Designated-Initializer → Initializer
+  Designated-Initializer → .标识符 = Initializer
+  Designated-Initializer → [常量表达式] = Initializer
+
+* Designated Initializer是C99引入的新特性，用于初始化稀疏（Sparse）结构体和稀疏数组很方便。有些时候结构体或数组中只有某一个或某几个成员需要初始化，其它成员都用0初始化即可，用Designated Initializer语法可以针对每个成员做初始化（Memberwise Initialization），很方便。例如：
+
+  ```c
+  struct complex_struct z1 = { .y = 4.0 }; /* z1.x=0.0, z1.y=4.0 */
+  ```
+
+* 结构体类型用在表达式中有很多限制，不像基本类型那么自由，比如+ - * /等算术运算符和&& || !等逻辑运算符都不能作用于结构体类型，`if`语句、`while`语句中的控制表达式的值也不能是结构体类型。
+
+* 严格来说，可以做算术运算的类型称为**算术类型（Arithmetic Type）**，算术类型包括整型和浮点型。
+
+* 可以表示零和非零，可以参与逻辑与、或、非运算或者做控制表达式的类型称为**标量类型（Scalar Type）**，标量类型包括算术类型和以后要讲的指针类型
+
+* ```c
+  struct complex_struct z1 = { 3.0, 4.0 };
+  struct complex_struct z2 = z1;
+  z1 = z2;
+  ```
+
+  * 结构体变量之间可以使用赋值运算符
+  * 可以用一个结构体变量初始化另一个结构体变量（**`z2`必须是局部变量才能用变量`z1`的值来初始化**）
+
+* 结构体变量之间可以相互赋值和初始化，也就可以当作函数的参数和返回值来传递：
+
+  ```c
+  struct complex_struct add_complex(struct complex_struct z1, struct complex_struct z2)
+  {
+  	z1.x = z1.x + z2.x;
+  	z1.y = z1.y + z2.y;
+  	return z1;
+  }
+  ```
+
+  这个函数实现了两个复数相加，如果在`main`函数中这样调用：
+
+  ```c
+  struct complex_struct z = { 3.0, 4.0 };
+  z = add_complex(z, z);
+  ```
+
+  * 那么调用传参的过程如下图所示：
+
+  **图 7.2. 结构体传参**
+
+  ![结构体传参](./images_学习笔记\struct.parameter.png)
+  * 变量`z`在`main`函数的栈帧上，参数`z1`和`z2`在`add_complex`函数的栈帧上，`z`的值分别赋给`z1`和`z2`。在这个函数里，`z2`的实部和虚部被累加到`z1`中，然后`return z1;`可以看成是：
+
+    1. 用`z1`初始化一个临时变量。
+    2. 函数返回并释放栈帧。
+    3. 把临时变量的值赋给变量`z`，释放临时变量。
+
+    由.运算符组成的表达式能不能做左值取决于.运算符左边的表达式能不能做左值。在上面的例子中，`z`是一个变量，可以做左值，因此表达式`z.x`也可以做左值，但表达式`add_complex(z, z).x`只能做右值而不能做左值，因为表达式`add_complex(z, z)`不能做左值。
+
+##  二十九、数据抽象
+
+* 构建复数数据结构，并设计复数加减乘除的计算方式[2. 数据抽象 (akaedu.github.io)](http://akaedu.github.io/book/ch07s02.html)
+
+* 这个例子中，复数存储表示层和复数运算层称为抽象层（Abstraction Layer），从底层往上层来看，复数越来越抽象了，把所有这些层组合在一起就是一个完整的系统。
+
+  ![数据抽象](./images_学习笔记\struct.abstraction.png)
+
+* **组合使得系统可以任意复杂，而抽象使得系统的复杂性是可以控制的，任何改动都只局限在某一层，而不会波及整个系统**。著名的计算机科学家Butler Lampson说过：“All problems in computer science can be solved by another level of indirection.”这里的indirection其实就是abstraction的意思。
+
+###  习题
+
+* 问：在本节的基础上实现一个打印复数的函数，打印的格式是x+yi，如果实部或虚部为0则省略，例如：1.0、-2.0i、-1.0+2.0i、1.0-2.0i。最后编写一个`main`函数测试本节的所有代码。想一想这个打印函数应该属于上图中的哪一层？
+
+* 答：
+
+* 问：实现一个用分子分母的格式来表示有理数的结构体`rational`以及相关的函数，`rational`结构体之间可以做加减乘除运算，运算的结果仍然是`rational`。测试代码如下：
+
+  ```c
+  int main(void)
+  {
+  	struct rational a = make_rational(1, 8); /* a=1/8 */
+  	struct rational b = make_rational(-1, 8); /* b=-1/8 */
+  	print_rational(add_rational(a, b));
+  	print_rational(sub_rational(a, b));
+  	print_rational(mul_rational(a, b));
+  	print_rational(div_rational(a, b));
+  
+  	return 0;
+  }
+  ```
+
+  注意要约分为最简分数，例如1/8和-1/8相减的打印结果应该是1/4而不是2/8，可以利用[第 3 节 “递归”](http://akaedu.github.io/book/ch05s03.html#func2.recursion)练习题中的Euclid算法来约分。在动手编程之前先思考一下这个问题实现了什么样的数据抽象，抽象层应该由哪些函数组成。
+
+* 答：
+
+##  三十、数据类型标志
+
+* > 比如先前已经采集了一些数据存在计算机中，有些数据是以极座标存储的，有些数据是以直角座标存储的，如果要把这些数据都存到`complex_struct`结构体中怎么办？
+
+  * 方法一：规定`complex_struct`结构体采用直角座标格式，直角座标的数据可以直接存入`complex_struct`结构体，而极座标的数据先转成直角座标再存
+
+    * 缺点：由于浮点数的精度有限，转换总是会损失精度的
+
+  * 方法二：`complex_struct`结构体由一个数据类型标志和两个浮点数组成，如果数据类型标志为0，那么两个浮点数就表示直角座标，如果数据类型标志为1，那么两个浮点数就表示极座标
+
+    * 优点：直角座标和极座标的数据都可以适配（Adapt）到`complex_struct`结构体中，无需转换和损失精度
+    * 缺点：额外增加一个数据成员
+
+  * ```c
+    enum coordinate_type { RECTANGULAR, POLAR };
+    struct complex_struct {
+    	enum coordinate_type t;
+    	double a, b;
+    };
+    ```
+
+    
+
+* 结构体的成员名和变量名不在同一命名空间中，但枚举的成员名却和变量名在同一命名空间中，所以会出现命名冲突
+
+###  习题
+
+* 问：本节只给出了`make_from_real_img`和`make_from_mag_ang`函数的实现，请读者自己实现`real_part`、`img_part`、`magnitude`、`angle`这些函数
+
+* 答：
+
+* 问：编译运行下面这段程序：
+
+  ```
+  #include <stdio.h>
+  
+  enum coordinate_type { RECTANGULAR = 1, POLAR };
+  
+  int main(void)
+  {
+  	int RECTANGULAR;
+  	printf("%d %d\n", RECTANGULAR, POLAR);
+  	return 0;
+  }
+  ```
+
+  结果是什么？并解释一下为什么是这样的结果。
+
+* 答：
+
+##  三十一、嵌套结构体
+
+* 结构体也是一种递归定义：结构体的成员具有某种数据类型，而结构体本身也是一种数据类型。换句话说，结构体的成员可以是另一个结构体，即结构体可以嵌套定义。例如我们在复数的基础上定义复平面上的线段：
+
+  ```c
+  struct segment {
+  	struct complex_struct start;
+  	struct complex_struct end;
+  };
+  ```
+
+* 初始化方式：
+
+  * 嵌套地初始化，例如：
+
+    ```
+    struct segment s = {{ 1.0, 2.0 }, { 4.0, 6.0 }};
+    ```
+
+  * 也可以平坦（Flat）地初始化。例如：
+
+    ```c
+    struct segment s = { 1.0, 2.0, 4.0, 6.0 };
+    ```
+
+  * 甚至可以把两种方式混合使用（这样可读性很差，应该避免）：
+
+    ```c
+    struct segment s = {{ 1.0, 2.0 }, 4.0, 6.0 };
+    ```
+
+  * 利用C99的新特性也可以做Memberwise Initialization，例如[[15](http://akaedu.github.io/book/ch07s04.html#ftn.id2731613)]：
+
+    ```c
+    struct segment s = { .start.x = 1.0, .end.x = 2.0 };
+    ```
+
+* 访问嵌套结构体的成员要用到多个.运算符，例如：
+
+  ```c
+  s.start.t = RECTANGULAR;
+  s.start.a = 1.0;
+  s.start.b = 2.0;
+  ```
+
+##  三十二、数值的基本概念
+
+* 数组（Array）也是一种复合数据类型，它由一系列相同类型的元素（Element）组成
+
+* **数组和结构体可以相互嵌套使用，即结构体类型数组和包含数组成员的结构体**
+
+* 所有的数组都是由连续的内存位置组成。最低的地址对应第一个元素，最高的地址对应最后一个元素。
+
+* 数组类型的长度应该用一个整数常量表达式来指定[[16](http://akaedu.github.io/book/ch08s01.html#ftn.id2733250)]。数组中的元素通过下标（或者叫索引，Index）来访问。例如前面定义的由4个`int`型元素组成的数组`count`图示如下：
+
+  **图 8.1. 数组count**
+
+  ![数组count](./images_学习笔记\array.count.png)
+
+  整个数组占了4个`int`型的存储单元，存储单元用小方框表示，里面的数字是存储在这个单元中的数据（假设都是0），而框外面的数字是下标，这四个单元分别用`count[0]`、`count[1]`、`count[2]`、`count[3]`来访问
+
+* 在**定义**数组`int count[4];`时，方括号（Bracket）中的数字4表示数组的**长度**，而在**访问数组**时，方括号中的数字表示访问数组的**第几个**元素。**数组元素是从“第0个”开始数的**
+
+* 这种数组下标的表达式不仅可以表示存储单元中的值，也可以表示存储单元本身，也就是说可以做左值
+
+* C编译器并不检查`count[-1]`或是`count[100]`这样的访问越界错误，编译时能顺利通过，所以属于运行时错误
+
+* **数组可和结构体一样进行初始化，未赋初值的元素也是用0来初始化，但数组不能相互赋值或初始化**
+
+* **不能用数组类型作为函数的参数或返回值**
+
+* **数组类型做右值使用时，自动转换成指向数组首元素的指针**
+
+* 如果定义数组的同时初始化它，也可以不指定数组的长度
+
+* 遍历（Traversal）：通过循环把数组中的每个元素依次访问一遍
+
+  * ```c
+    #include <stdio.h>
+    
+    int main(void)
+    {
+    	int count[4] = { 3, 2, }, i;
+    
+    	for (i = 0; i < 4; i++)
+    		printf("count[%d]=%d\n", i, count[i]);
+    	return 0;
+    }
+    ```
+
+###  习题
+
+* 问：*数组类型做右值使用时，自动转换成指向数组首元素的指针*
+* 答：
+
+##  三十三、数组应用实例：统计随机数
+
+###  小知识点
+
+* C标准库中生成伪随机数的是`rand`函数，使用这个函数需要包含头文件`stdlib.h`，它没有参数，返回值是一个介于0和`RAND_MAX`之间的接近均匀分布的整数。`RAND_MAX`是该头文件中定义的一个常量，在不同的平台上有不同的取值
+* 编译器的工作分为两个阶段，先是预处理（Preprocess）阶段，然后才是编译阶段，用`gcc`的`-E`选项可以看到预处理之后、编译之前的程序。用`cpp main.c`命令也可以达到同样的效果，只做预处理而不编译，`cpp`表示C preprocessor
+* 在定义数组时直接写成`int a[20];`，在每个循环中也直接使用20这个值，这称为硬编码（Hard coding）。**写代码时应尽可能避免硬编码**
+
+###  习题
+
+* 问：生成一列0~9的随机数保存在数组中，然后统计其中每个数字出现的次数并打印，检查这些数字的随机性如何。
+
+* 答：
+
+* 问：#define和枚举变量的区别
+
+* 答：
+
+* 问：试试看把[第 3 节 “数据类型标志”](http://akaedu.github.io/book/ch07s03.html#struct.datatag)习题2的程序改成下面这样是什么结果。
+
+  ```c
+  #include <stdio.h>
+  #define RECTANGULAR 1
+  #define POLAR 2
+  
+  int main(void)
+  {
+  	int RECTANGULAR;
+  	printf("%d %d\n", RECTANGULAR, POLAR);
+  	return 0;
+  }
+  ```
+
+* 答：
+
+* 问：用`rand`函数生成[10, 20]之间的随机整数，表达式应该怎么写？
+
+* 答：
+
+##  三十四、 数组应用实例：直方图
+
+* 统计一列0~9的随机数，打印每个数字出现的次数，像这样的统计结果称为直方图（Histogram）
+
+* C标准库允许我们自己指定一个初值，然后在此基础上生成伪随机数，这个初值称为Seed，可以用`srand`函数指定Seed。通常我们通过别的途径得到一个不确定的数作为Seed，例如调用`time`函数得到当前系统时间距1970年1月1日00:00:00[[18](http://akaedu.github.io/book/ch08s03.html#ftn.id2734350)]的秒数，然后传给`srand`：
+
+  ```c
+  srand(time(NULL));
+  ```
+
+###  习题
+
+* 问：补完本节直方图程序的`main`函数，以可视化的形式打印直方图。例如上一节统计20个随机数的结果是：
+
+  ```c
+  0  1  2  3  4  5  6  7  8  9
+  
+  *  *  *  *     *  *  *     *
+  *     *  *     *  *  *     *
+        *  *        *
+                    *
+                    *
+  ```
+
+* 答：
+
+* 问：定义一个数组，编程打印它的全排列。比如定义：
+
+  ```c
+  #define N 3
+  int a[N] = { 1, 2, 3 };
+  ```
+
+  则运行结果是：
+
+  ```c
+  $ ./a.out
+  1 2 3 
+  1 3 2 
+  2 1 3 
+  2 3 1 
+  3 2 1 
+  3 1 2 
+  1 2 3
+  ```
+
+  程序的主要思路是：
+
+  1. 把第1个数换到最前面来（本来就在最前面），准备打印1xx，再对后两个数2和3做全排列。
+  2. 把第2个数换到最前面来，准备打印2xx，再对后两个数1和3做全排列。
+  3. 把第3个数换到最前面来，准备打印3xx，再对后两个数1和2做全排列。
+
+  可见这是一个递归的过程，把对整个序列做全排列的问题归结为对它的子序列做全排列的问题，注意我没有描述Base Case怎么处理，你需要自己想。你的程序要具有通用性，如果改变了`N`和数组`a`的定义（比如改成4个数的数组），其它代码不需要修改就可以做4个数的全排列（共24种排列）。
+
+  完成了上述要求之后再考虑第二个问题：如果再定义一个常量`M`表示从`N`个数中取几个数做排列（`N == M`时表示全排列），原来的程序应该怎么改？
+
+  最后再考虑第三个问题：如果要求从`N`个数中取`M`个数做组合而不是做排列，就不能用原来的递归过程了，想想组合的递归过程应该怎么描述，编程实现它。
+
+* 答：
+
+##  三十五、字符串
+
+* 字符串可以看作一个数组，它的每个元素是字符型的，例如字符串`"Hello, world.\n"`图示如下：
+
+  **图 8.2. 字符串**
+
+  ![字符串](./images_学习笔记\array.string.png)
+
+* 数组元素可以通过数组名加下标的方式访问，而字符串字面值也可以像数组名一样使用，可以加下标访问其中的字符：
+
+  ```c
+  char c = "Hello, world.\n"[0];//合法的
+  ```
+
+  但是通过下标修改其中的字符却是不允许的：
+
+  ```c
+  "Hello, world.\n"[0] = 'A';//不允许的；不合法的
+  ```
+
+* **字符串字面值还有一点和数组名类似，做右值使用时自动转换成指向首元素的指针**
+
+* 字符串字面值是只读的，不允许修改，但用一个字符串字面值初始化的数组`str`却是可读可写的
+
+* 如果用于初始化的字符串字面值比数组还长，比如：
+
+  ```
+  char str[10] = "Hello, world.\n";
+  ```
+
+  则数组`str`只包含字符串的前10个字符，不包含Null字符，这种情况编译器会给出警告。如果要用一个字符串字面值准确地初始化一个字符数组，最好的办法是不指定数组的长度，让编译器自己计算：
+
+  ```
+  char str[] = "Hello, world.\n";
+  ```
+
+  字符串字面值的长度包括Null字符在内一共15个字符，编译器会确定数组`str`的长度为15。
+
+* 有一种情况需要特别注意，如果用于初始化的字符串字面值比数组刚好长出一个Null字符的长度，比如：
+
+  ```
+  char str[14] = "Hello, world.\n";
+  ```
+
+  则数组`str`不包含Null字符，并且编译器不会给出警告
+
+* > `printf`会从数组`str`的开头一直打印到Null字符为止，Null字符本身是Non-printable字符，不打印。这其实是一个危险的信号：如果数组`str`中没有Null字符，那么`printf`函数就会访问数组越界，后果可能会很诡异：有时候打印出乱码，有时候看起来没错误，有时候引起程序崩溃。
+
+##  三十六、多维数组
+
+* 数组嵌套——多维数组（Multi-dimensional Array）：一个数组的元素是另外一个数组
+
+* 定义并初始化一个二维数组：
+
+  ```c
+  int a[3][2] = { 1, 2, 3, 4, 5 };
+  ```
+
+  数组`a`有3个元素，`a[0]`、`a[1]`、`a[2]`。每个元素也是一个数组，例如`a[0]`是一个数组，它有两个元素`a[0][0]`、`a[0][1]`，这两个元素的类型是`int`，值分别是1、2，同理，数组`a[1]`的两个元素是3、4，数组`a[2]`的两个元素是5、0。如下图所示：
+
+  **图 8.3. 多维数组**
+
+  ![多维数组](./images_学习笔记\array.multidim.png)
+
+  * 从概念模型上看，这个二维数组是三行两列的表格，元素的两个下标分别是行号和列号。
+  * 从物理模型上看，这六个元素在存储器中仍然是连续存储的，就像一维数组一样，相当于把概念模型的表格一行一行接起来拼成一串，C语言的这种存储方式称为Row-major方式.而有些编程语言（例如FORTRAN）是把概念模型的表格一列一列接起来拼成一串存储的，称为Column-major方式。
+
+* 数据驱动的编程（Data-driven Programming）：用数据代替了代码，例如：通过下标访问字符串组成的数组可以代替一堆`case`分支判断，这样就可以把每个`case`里重复的代码（`printf`调用）提取出来，从而又一次达到了“提取公因式”的效果
+
+* 最简单的小游戏－－剪刀石头布：
+
+  **例 8.5. 剪刀石头布**
+
+  ```c
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <time.h>
+  
+  int main(void)
+  {
+  	char gesture[3][10] = { "scissor", "stone", "cloth" };
+  	int man, computer, result, ret;
+  
+  	srand(time(NULL));
+  	while (1) {
+  		computer = rand() % 3;
+  	  	printf("\nInput your gesture (0-scissor 1-stone 2-cloth):\n");
+  		ret = scanf("%d", &man);
+  	  	if (ret != 1 || man < 0 || man > 2) {
+  			printf("Invalid input! Please input 0, 1 or 2.\n");
+  			continue;
+  		}
+  		printf("Your gesture: %s\tComputer's gesture: %s\n", 
+  			gesture[man], gesture[computer]);
+  
+  		result = (man - computer + 4) % 3 - 1;
+  		if (result > 0)
+  			printf("You win!\n");
+  		else if (result == 0)
+  			printf("Draw!\n");
+  		else
+  			printf("You lose!\n");
+  	}
+  	return 0;
+  }
+  ```
+
+  
+
+  0、1、2三个整数分别是剪刀石头布在程序中的内部表示，用户也要求输入0、1或2，然后和计算机随机生成的0、1或2比胜负。这个程序的主体是一个死循环，需要按Ctrl-C退出程序。以往我们写的程序都只有打印输出，在这个程序中我们第一次碰到处理用户输入的情况。我们简单介绍一下`scanf`函数的用法，到[第 2.9 节 “格式化I/O函数”](http://akaedu.github.io/book/ch25s02.html#stdlib.formatio)再详细解释。`scanf("%d", &man)`这个调用的功能是等待用户输入一个整数并回车，这个整数会被`scanf`函数保存在`man`这个整型变量里。如果用户输入合法（输入的确实是数字而不是别的字符），则`scanf`函数返回1，表示成功读入一个数据。但即使用户输入的是整数，我们还需要进一步检查是不是在0~2的范围内，写程序时对用户输入要格外小心，用户有可能输入任何数据，他才不管游戏规则是什么。
+
+###  习题
+
+* 问：上文剪刀石头布小游戏代码中，`(man - computer + 4) % 3 - 1`这个神奇的表达式是如何比较出0、1、2这三个数字在“剪刀石头布”意义上的大小的？
+* 答：
+
+##  三十七、缩进和空白
+
+* 空白字符的规定
+
+  1、关键字`if`、`while`、`for`与其后的控制表达式的(括号之间插入一个空格分隔，但括号内的表达式应紧贴括号。例如：
+
+  ```
+  while␣(1);
+  ```
+
+  2、双目运算符的两侧各插入一个空格分隔，单目运算符和操作数之间不加空格，例如`i␣=␣i␣+␣1`、`++i`、`!(i␣<␣1)`、`-x`、`&a[1]`等。
+
+  3、后缀运算符和操作数之间也不加空格，例如取结构体成员`s.a`、函数调用`foo(arg1)`、取数组成员`a[i]`。
+
+  4、,号和;号之后要加空格，这是英文的书写习惯，例如`for␣(i␣=␣1;␣i␣<␣10;␣i++)`、`foo(arg1,␣arg2)`。
+
+  5、以上关于双目运算符和后缀运算符的规则并没有严格要求，有时候为了突出优先级也可以写得更紧凑一些，例如`for␣(i=1;␣i<10;␣i++)`、`distance␣=␣sqrt(x*x␣+␣y*y)`等。但是省略的空格一定不要误导了读代码的人，例如`a||b␣&&␣c`很容易让人理解成错误的优先级。
+
+  6、由于UNIX系统标准的字符终端是24行80列的，接近或大于80个字符的较长语句要折行写，折行后用空格和上面的表达式或参数对齐，例如：
+
+  ```c
+  if␣(sqrt(x*x␣+␣y*y)␣>␣5.0
+      &&␣x␣<␣0.0
+      &&␣y␣>␣0.0)
+  ```
+
+  再比如：
+
+  ```c
+  foo(sqrt(x*x␣+␣y*y),
+      a[i-1]␣+␣b[i-1]␣+␣c[i-1])
+  ```
+
+  7、较长的字符串可以断成多个字符串然后分行书写，例如：
+
+  ```c
+  printf("This is such a long sentence that "
+         "it cannot be held within a line\n");
+  ```
+
+  C编译器会自动把相邻的多个字符串接在一起，以上两个字符串相当于一个字符串`"This is such a long sentence that it cannot be held within a line\n"`。
+
+  8、有的人喜欢在变量定义语句中用Tab字符，使变量名对齐，这样看起来很美观。
+
+  ```c
+         →int    →a, b;
+         →double →c;
+  ```
+
+* 缩进的规则
+
+  1、要用缩进体现出语句块的层次关系，使用Tab字符缩进，不能用空格代替Tab。在标准的字符终端上一个Tab看起来是8个空格的宽度，如果你的文本编辑器可以设置Tab的显示宽度是几个空格，建议也设成8，这样大的缩进使代码看起来非常清晰。如果有的行用空格做缩进，有的行用Tab做缩进，甚至空格和Tab混用，那么一旦改变了文本编辑器的Tab显示宽度就会看起来非常混乱，所以内核代码风格规定只能用Tab做缩进，不能用空格代替Tab。
+
+  2、`if/else`、`while`、`do/while`、`for`、`switch`这些可以带语句块的语句，语句块的{或}应该和关键字写在同一行，用空格隔开，而不是单独占一行。例如应该这样写：
+
+  ```c
+  if␣(...)␣{
+         →语句列表
+  }␣else␣if␣(...)␣{
+         →语句列表
+  }
+  ```
+
+  但很多人习惯这样写：
+
+  ```c
+  if␣(...)
+  {
+         →语句列表
+  }
+  else␣if␣(...)
+  {
+         →语句列表
+  }
+  ```
+
+  内核的写法和[[K&R\]](http://akaedu.github.io/book/bi01.html#bibli.kr)一致，好处是不必占太多行，使得一屏能显示更多代码。这两种写法用得都很广泛，只要在同一个项目中能保持统一就可以了。
+
+  3、函数定义的{和}单独占一行，这一点和语句块的规定不同，例如：
+
+  ```c
+  int␣foo(int␣a,␣int␣b)
+  {
+         →语句列表
+  }
+  ```
+
+  4、`switch`和语句块里的`case`、`default`对齐写，也就是说语句块里的`case`、`default`标号相对于`switch`不往里缩进，但标号下的语句要往里缩进。例如：
+
+  ```c
+        →switch␣(c)␣{
+        →case 'A':
+        →       →语句列表
+        →case 'B':
+        →       →语句列表
+        →default:
+        →       →语句列表
+        →}
+  ```
+
+  用于`goto`语句的自定义标号应该顶头写不缩进，而不管标号下的语句缩进到第几层。
+
+  5、代码中每个逻辑段落之间应该用一个空行分隔开。例如每个函数定义之间应该插入一个空行，头文件、全局变量定义和函数定义之间也应该插入空行，例如：
+
+  ```c
+  #include <stdio.h>
+  #include <stdlib.h>
+  
+  int g;
+  double h;
+  
+  int foo(void)
+  {
+         →语句列表
+  }
+  
+  int bar(int a)
+  {
+         →语句列表
+  }
+  
+  int main(void)
+  {
+         →语句列表
+  }
+  ```
+
+  6、一个函数的语句列表如果很长，也可以根据相关性分成若干组，用空行分隔。这条规定不是严格要求，通常把变量定义组成一组，后面加空行，`return`语句之前加空行，例如：
+
+  ```c
+  int main(void)
+  {
+         →int    →a, b;
+         →double →c;
+  
+         →语句组1
+  
+         →语句组2
+  
+         →return 0;
+  }
+  ```
+
+##  三十八、注释
+
+* 注释方式：
+
+  * 单行注释应采用`/*␣comment␣*/`的形式，用空格把界定符和文字分开。
+
+  * 多行注释最常见的是这种形式：
+
+    ```c
+    /*
+    ␣*␣Multi-line
+    ␣*␣comment
+    ␣*/
+    ```
+
+    也有更花哨的形式：
+
+    ```c
+    /*************\
+    * Multi-line  *
+    * comment     *
+    \*************/
+    ```
+
+* 注释场合：
+
+  1、整个源文件的顶部注释。说明此模块的相关信息，例如文件名、作者和版本历史等，顶头写不缩进。例如内核源代码目录下的`kernel/sched.c`文件的开头：
+
+  ```c
+  /*
+   *  kernel/sched.c
+   *
+   *  Kernel scheduler and related syscalls
+   *
+   *  Copyright (C) 1991-2002  Linus Torvalds
+   *
+   *  1996-12-23  Modified by Dave Grothe to fix bugs in semaphores and
+   *              make semaphores SMP safe
+   *  1998-11-19  Implemented schedule_timeout() and related stuff
+   *              by Andrea Arcangeli
+   *  2002-01-04  New ultra-scalable O(1) scheduler by Ingo Molnar:
+   *              hybrid priority-list and round-robin design with
+   *              an array-switch method of distributing timeslices
+   *              and per-CPU runqueues.  Cleanups and useful suggestions
+   *              by Davide Libenzi, preemptible kernel bits by Robert Love.
+   *  2003-09-03  Interactivity tuning by Con Kolivas.
+   *  2004-04-02  Scheduler domains code by Nick Piggin
+   */
+  ```
+
+  2、函数注释。说明此函数的功能、参数、返回值、错误码等，写在函数定义上侧，和此函数定义之间不留空行，顶头写不缩进。
+
+  3、相对独立的语句组注释。对这一组语句做特别说明，写在语句组上侧，和此语句组之间不留空行，与当前语句组的缩进一致。
+
+  4、代码行右侧的简短注释。对当前代码行做特别说明，一般为单行注释，和代码之间至少用一个空格隔开，一个源文件中所有的右侧注释最好能上下对齐。尽管[例 2.1 “带更多注释的Hello World”](http://akaedu.github.io/book/ch02s01.html#expr.morehelloworld)讲过注释可以穿插在一行代码中间，但不建议这么写。内核源代码目录下的`lib/radix-tree.c`文件中的一个函数包含了上述三种注释：
+
+  ```c
+  /**
+   *      radix_tree_insert    -    insert into a radix tree
+   *      @root:          radix tree root
+   *      @index:         index key
+   *      @item:          item to insert
+   *
+   *      Insert an item into the radix tree at position @index.
+   */
+  int radix_tree_insert(struct radix_tree_root *root,
+                          unsigned long index, void *item)
+  {
+          struct radix_tree_node *node = NULL, *slot;
+          unsigned int height, shift;
+          int offset;
+          int error;
+  
+          /* Make sure the tree is high enough.  */
+          if ((!index && !root->rnode) ||
+                          index > radix_tree_maxindex(root->height)) {
+                  error = radix_tree_extend(root, index);
+                  if (error)
+                          return error;
+          }
+  
+          slot = root->rnode;
+          height = root->height;
+          shift = (height-1) * RADIX_TREE_MAP_SHIFT;
+  
+          offset = 0;                     /* uninitialised var warning */
+          do {
+                  if (slot == NULL) {
+                          /* Have to add a child node.  */
+                          if (!(slot = radix_tree_node_alloc(root)))
+                                  return -ENOMEM;
+                          if (node) {
+                                  node->slots[offset] = slot;
+                                  node->count++;
+                          } else
+                                  root->rnode = slot;
+                  }
+  
+                  /* Go a level down */
+                  offset = (index >> shift) & RADIX_TREE_MAP_MASK;
+                  node = slot;
+                  slot = node->slots[offset];
+                  shift -= RADIX_TREE_MAP_SHIFT;
+                  height--;
+          } while (height > 0);
+  
+          if (slot != NULL)
+                  return -EEXIST;
+  
+          BUG_ON(!node);
+          node->count++;
+          node->slots[offset] = item;
+          BUG_ON(tag_get(node, 0, offset));
+          BUG_ON(tag_get(node, 1, offset));
+  
+          return 0;
+  }
+  ```
+
+  [[CodingStyle\]](http://akaedu.github.io/book/bi01.html#bibli.codingstyle)中特别指出，函数内的注释要尽可能少用。写注释主要是为了说明你的代码“能做什么”（比如函数接口定义），而不是为了说明“怎样做”，只要代码写得足够清晰，“怎样做”是一目了然的，如果你需要用注释才能解释清楚，那就表示你的代码可读性很差，除非是特别需要提醒注意的地方才使用函数内注释。
+
+  5、复杂的结构体定义比函数更需要注释。例如内核源代码目录下的`kernel/sched.c`文件中定义了这样一个结构体：
+
+  ```c
+  /*
+   * This is the main, per-CPU runqueue data structure.
+   *
+   * Locking rule: those places that want to lock multiple runqueues
+   * (such as the load balancing or the thread migration code), lock
+   * acquire operations must be ordered by ascending &runqueue.
+   */
+  struct runqueue {
+          spinlock_t lock;
+  
+          /*
+           * nr_running and cpu_load should be in the same cacheline because
+           * remote CPUs use both these fields when doing load calculation.
+           */
+          unsigned long nr_running;
+  #ifdef CONFIG_SMP
+          unsigned long cpu_load[3];
+  #endif
+          unsigned long long nr_switches;
+  
+          /*
+           * This is part of a global counter where only the total sum
+           * over all CPUs matters. A task can increase this counter on
+           * one CPU and if it got migrated afterwards it may decrease
+           * it on another CPU. Always updated under the runqueue lock:
+           */
+          unsigned long nr_uninterruptible;
+  
+          unsigned long expired_timestamp;
+          unsigned long long timestamp_last_tick;
+          task_t *curr, *idle;
+          struct mm_struct *prev_mm;
+          prio_array_t *active, *expired, arrays[2];
+          int best_expired_prio;
+          atomic_t nr_iowait;
+  
+  #ifdef CONFIG_SMP
+          struct sched_domain *sd;
+  
+          /* For active balancing */
+          int active_balance;
+          int push_cpu;
+  
+          task_t *migration_thread;
+          struct list_head migration_queue;
+          int cpu;
+  #endif
+  
+  #ifdef CONFIG_SCHEDSTATS
+          /* latency stats */
+          struct sched_info rq_sched_info;
+  
+          /* sys_sched_yield() stats */
+          unsigned long yld_exp_empty;
+          unsigned long yld_act_empty;
+          unsigned long yld_both_empty;
+          unsigned long yld_cnt;
+  
+          /* schedule() stats */
+          unsigned long sched_switch;
+          unsigned long sched_cnt;
+          unsigned long sched_goidle;
+  
+          /* try_to_wake_up() stats */
+          unsigned long ttwu_cnt;
+          unsigned long ttwu_local;
+  #endif
+  };
+  ```
+
+  6、复杂的宏定义和变量声明也需要注释。例如内核源代码目录下的`include/linux/jiffies.h`文件中的定义：
+
+  ```c
+  /* TICK_USEC_TO_NSEC is the time between ticks in nsec assuming real ACTHZ and  */
+  /* a value TUSEC for TICK_USEC (can be set bij adjtimex)                */
+  #define TICK_USEC_TO_NSEC(TUSEC) (SH_DIV (TUSEC * USER_HZ * 1000, ACTHZ, 8))
+  
+  /* some arch's have a small-data section that can be accessed register-relative
+   * but that can only take up to, say, 4-byte variables. jiffies being part of
+   * an 8-byte variable may not be correctly accessed unless we force the issue
+   */
+  #define __jiffy_data  __attribute__((section(".data")))
+  
+  /*
+   * The 64-bit value is not volatile - you MUST NOT read it
+   * without sampling the sequence number in xtime_lock.
+   * get_jiffies_64() will do this for you as appropriate.
+   */
+  extern u64 __jiffy_data jiffies_64;
+  extern unsigned long volatile __jiffy_data jiffies;
+  ```
+
+##  三十九、标识符命名
+
+* 标识符命名原则：
+
+  1. 标识符命名要清晰明了，可以使用完整的单词和易于理解的缩写。短的单词可以通过去元音形成缩写，较长的单词可以取单词的头几个字母形成缩写。看别人的代码看多了就可以总结出一些缩写惯例，例如`count`写成`cnt`，`block`写成`blk`，`length`写成`len`，`window`写成`win`，`message`写成`msg`，`number`写成`nr`，`temporary`可以写成`temp`，也可以进一步写成`tmp`，最有意思的是`internationalization`写成`i18n`，词根`trans`经常缩写成`x`，例如`transmit`写成`xmt`。我就不多举例了，请读者在看代码时自己注意总结和积累。
+
+  2. 内核编码风格规定变量、函数和类型采用全小写加下划线的方式命名，常量（比如宏定义和枚举常量）采用全大写加下划线的方式命名，比如上一节举例的函数名`radix_tree_insert`、类型名`struct radix_tree_root`、常量名`RADIX_TREE_MAP_SHIFT`等。
+
+     微软发明了一种变量命名法叫匈牙利命名法（Hungarian notation），在变量名中用前缀表示类型，例如`iCnt`（i表示int）、`pMsg`（p表示pointer）、`lpszText`（lpsz表示long pointer to a zero-ended string）等。Linus在[[CodingStyle\]](http://akaedu.github.io/book/bi01.html#bibli.codingstyle)中毫不客气地讽刺了这种写法：“Encoding the type of a function into the name (so-called Hungarian notation) is brain damaged - the compiler knows the types anyway and can check those, and it only confuses the programmer. No wonder MicroSoft makes buggy programs.”代码风格本来就是一个很有争议的问题，如果你接受本章介绍的内核编码风格（也是本书所有范例代码的风格），就不要使用大小写混合的变量命名方式[[19](http://akaedu.github.io/book/ch09s03.html#ftn.id2738703)]，更不要使用匈牙利命名法。
+
+  3. 全局变量和全局函数的命名一定要详细，不惜多用几个单词多写几个下划线，例如函数名`radix_tree_insert`，因为它们在整个项目的许多源文件中都会用到，必须让使用者明确这个变量或函数是干什么用的。局部变量和只在一个源文件中调用的内部函数的命名可以简略一些，但不能太短。尽量不要使用单个字母做变量名，只有一个例外：用`i`、`j`、`k`做循环变量是可以的。
+
+  4. 针对中国程序员的一条特别规定：禁止用汉语拼音做标识符，可读性极差。
+
+  ------
+
+  [[19](http://akaedu.github.io/book/ch09s03.html#id2738703)] 大小写混合的命名方式是Modern C++风格所提倡的，在C++代码中很普遍，称为CamelCase），大概是因为有高有低像驼峰一样。
+
+##  四十、函数
+
+* 函数设计规则：
+  * 1、实现一个函数只是为了做好一件事情，不要把函数设计成用途广泛、面面俱到的，这样的函数肯定会超长，而且往往不可重用，维护困难。
+  * 2、函数内部的缩进层次不宜过多，一般以少于4层为宜。如果缩进层次太多就说明设计得太复杂了，应考虑分割成更小的函数（Helper Function）来调用。
+  * 3、函数不要写得太长，建议在24行的标准终端上不超过两屏，太长会造成阅读困难，如果一个函数超过两屏就应该考虑分割函数了。[[CodingStyle\]](http://akaedu.github.io/book/bi01.html#bibli.codingstyle)中特别说明，如果一个函数在概念上是简单的，只是长度很长，这倒没关系。例如函数由一个大的`switch`组成，其中有非常多的`case`，这是可以的，因为各`case`分支互不影响，整个函数的复杂度只等于其中一个`case`的复杂度，这种情况很常见，例如TCP协议的状态机实现。
+  * 4、执行函数就是执行一个动作，函数名通常应包含动词，例如`get_current`、`radix_tree_insert`。
+  * 5、比较重要的函数定义上侧必须加注释，说明此函数的功能、参数、返回值、错误码等。
+  * 6、另一种度量函数复杂度的办法是看有多少个局部变量，5到10个局部变量已经很多了，再多就很难维护了，应该考虑分割成多个函数。
+
+##  四十一、indent工具
+
+* `indent`工具可以把代码格式化成某种风格，例如把[例 9.1 “缺少缩进和空白的代码”](http://akaedu.github.io/book/ch09s01.html#codingstyle.badcode)格式化成内核编码风格：
+
+  ```c
+  $ indent -kr -i8 main.c 
+  $ cat main.c
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <time.h>
+  int main(void)
+  {
+  	char gesture[3][10] = { "scissor", "stone", "cloth" };
+  	int man, computer, result, ret;
+  	srand(time(NULL));
+  	while (1) {
+  		computer = rand() % 3;
+  		printf
+  		    ("\nInput your gesture (0-scissor 1-stone 2-cloth):\n");
+  		ret = scanf("%d", &man);
+  		if (ret != 1 || man < 0 || man > 2) {
+  			printf("Invalid input! Please input 0, 1 or 2.\n");
+  			continue;
+  		}
+  		printf("Your gesture: %s\tComputer's gesture: %s\n",
+  		       gesture[man], gesture[computer]);
+  		result = (man - computer + 4) % 3 - 1;
+  		if (result > 0)
+  			printf("You win!\n");
+  		else if (result == 0)
+  			printf("Draw!\n");
+  		else
+  			printf("You lose!\n");
+  	}
+  	return 0;
+  }
+  ```
+
+  `-kr`选项表示K&R风格，`-i8`表示缩进8个空格的长度。如果没有指定`-nut`选项，则每8个缩进空格会自动用一个Tab代替。注意`indent`命令会直接修改原文件，而不是打印到屏幕上或者输出到另一个文件，这一点和很多UNIX命令不同。可以看出，`-kr -i8`两个选项格式化出来的代码已经很符合本章介绍的代码风格了，添加了必要的缩进和空白，较长的代码行也会自动折行。美中不足的是没有添加适当的空行，因为`indent`工具也不知道哪几行代码在逻辑上是一组的，空行还是要自己动手添，当然原有的空行肯定不会被`indent`删去的。
+
+##  四十二、单步执行和跟踪函数调用
+
+* 
