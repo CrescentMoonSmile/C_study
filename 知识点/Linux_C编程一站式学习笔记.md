@@ -2194,4 +2194,409 @@ quotient = x%m>0 ? x/n+1:x/n;
 
 ##  四十二、单步执行和跟踪函数调用
 
+步骤说明：
+
+* ```c
+  $ gcc -g main.c -o main
+  $ gdb main
+  ```
+
+  `-g`选项的作用是在可执行文件中加入源代码的信息，比如可执行文件中第几条机器指令对应源代码的第几行，但并不是把整个源文件嵌入到可执行文件中，所以在调试时必须保证`gdb`能找到源文件。
+
+* `gdb`提供一个类似Shell的命令行环境，上面的`(gdb)`就是提示符，在这个提示符下输入`help`可以查看命令的类别：
+
+  ```c
+  (gdb) help
+  ```
+
+  也可以进一步查看某一类别中有哪些命令，例如查看`files`类别下有哪些命令可用：
+
+  ```c
+  (gdb) help files
+  ```
+
+* 用`list`命令从第一行开始列出源代码：
+
+  ```c
+  (gdb) list 1
+  1	#include <stdio.h>
+  2	
+  3	int add_range(int low, int high)
+  4	{
+  5		int i, sum;
+  6		for (i = low; i <= high; i++)
+  7			sum = sum + i;
+  8		return sum;
+  9	}
+  10
+  ```
+
+  一次只列10行，如果要从第11行开始继续列源代码可以输入
+
+  ```c
+  (gdb) list
+  ```
+
+  也可以什么都不输直接敲回车，**`gdb`提供了一个很方便的功能，在提示符下直接敲回车表示重复上一条命令。**
+
+* 退出`gdb`的环境：
+
+  ```c
+  (gdb) quit
+  ```
+
+* 1、首先用`start`命令开始执行程序：
+
+  ```c
+  $ gdb main
+  ...
+  (gdb) start
+  ```
+
+* 2、用`next`命令（简写为`n`）控制这些语句一条一条地执行：
+
+  ```c
+  (gdb) n
+  ```
+
+* 3、用`start`命令重新来过，这次用`step`命令（简写为`s`）钻进`add_range`函数中去跟踪执行：
+
+  ```c
+  (gdb) start
+  The program being debugged has been started already.
+  Start it from the beginning? (y or n) y
+  
+  Breakpoint 2 at 0x80483ad: file main.c, line 14.
+  Starting program: /home/akaedu/main 
+  main () at main.c:14
+  14		result[0] = add_range(1, 10);
+  (gdb) s
+  add_range (low=1, high=10) at main.c:6
+  6		for (i = low; i <= high; i++)
+  ```
+
+* 在函数中有几种查看状态的办法，`backtrace`命令（简写为`bt`）可以查看函数调用的栈帧：
+
+  ```c
+  (gdb) bt
+  ```
+
+* 可以用`info`命令（简写为`i`）查看`add_range`函数局部变量的值：
+
+  ```c
+  (gdb) i locals
+  ```
+
+* 用`frame`命令（简写为`f`）选择1号栈帧然后再查看局部变量：
+
+  ```c
+  (gdb) f 1
+  ```
+
+* 用`print`命令（简写为`p`）打印出变量`sum`的值：
+
+  ```c
+  (gdb) s
+  7			sum = sum + i;
+  (gdb) （直接回车）
+  6		for (i = low; i <= high; i++)
+  (gdb) （直接回车）
+  7			sum = sum + i;
+  (gdb) （直接回车）
+  6		for (i = low; i <= high; i++)
+  (gdb) p sum
+  $1 = 3
+  ```
+
+  第一次循环`i`是1，第二次循环`i`是2，加起来是3，没错。这里的`$1`表示`gdb`保存着这些中间结果，$后面的编号会自动增长，在命令中可以用`$1`、`$2`、`$3`等编号代替相应的值
+
+* 用`finish`命令让程序一直运行到从当前函数返回为止：
+
+  ```c
+  (gdb) finish
+  ```
+
+* 修改变量的值除了用`set`命令之外也可以用`print`命令，因为`print`命令后面跟的是表达式，而我们知道赋值和函数调用也都是表达式，所以也可以用`print`命令修改变量的值或者调用函数：
+
+```c
+  (gdb) set var sum=0
+```
+
+  ```c
+  (gdb) p result[2]=33
+  (gdb) p printf("result[2]=%d\n", result[2])
+  ```
+
+* 本节用到的`gdb`命令：
+
+  **表 10.1. gdb基本命令1**
+
+  | 命令                | 描述                                                   |
+  | ------------------- | ------------------------------------------------------ |
+  | backtrace（或bt）   | 查看各级函数调用及参数                                 |
+  | finish              | 连续运行到当前函数返回为止，然后停下来等待命令         |
+  | frame（或f） 帧编号 | 选择栈帧                                               |
+  | info（或i） locals  | 查看当前栈帧局部变量的值                               |
+  | list（或l）         | 列出源代码，接着上次的位置往下列，每次列10行           |
+  | list 行号           | 列出从第几行开始的源代码                               |
+  | list 函数名         | 列出某个函数的源代码                                   |
+  | next（或n）         | 执行下一行语句                                         |
+  | print（或p）        | 打印表达式的值，通过表达式可以修改变量的值或者调用函数 |
+  | quit（或q）         | 退出`gdb`调试环境                                      |
+  | set var             | 修改变量的值                                           |
+  | start               | 开始执行程序，停在`main`函数第一行语句前面等待命令     |
+  | step（或s）         | 执行下一行语句，如果有函数调用则进入到函数中           |
+
+###  习题
+
+* 问：用`gdb`一步一步跟踪[第 3 节 “递归”](http://akaedu.github.io/book/ch05s03.html#func2.recursion)讲的`factorial`函数，对照着[图 5.2 “factorial(3)的调用过程”](http://akaedu.github.io/book/ch05s03.html#func2.factorial)查看各层栈帧的变化情况，练习本节所学的各种`gdb`命令。
+* 答：
+
+##  四十三、断点
+
+* `display`命令使得每次停下来的时候都显示当前`sum`的值，然后继续往下走：
+
+  ```c
+  (gdb) display sum
+  1: sum = -1208103488
+  (gdb) n
+  9			scanf("%s", input);
+  1: sum = 0
+  ```
+
+  `undisplay`命令可以取消跟踪显示，变量`sum`的编号是1，可以用`undisplay 1`命令取消它的跟踪显示
+
+* 如果不想一步一步走这个循环，可以用`break`命令（简写为`b`）在第9行设一个断点（Breakpoint）：
+
+  ```c
+  (gdb) l
+  5		int sum = 0, i;
+  6		char input[5];
+  7	
+  8		while (1) {
+  9			scanf("%s", input);
+  10			for (i = 0; input[i] != '\0'; i++)
+  11				sum = sum*10 + input[i] - '0';
+  12			printf("input=%d\n", sum);
+  13		}
+  14		return 0;
+  (gdb) b 9
+  Breakpoint 2 at 0x80483bc: file main.c, line 9.
+  ```
+
+  `break`命令的参数也可以是函数名，表示在某个函数开头设断点
+
+* 用`continue`命令（简写为`c`）连续运行而非单步运行，程序到达断点会自动停下来，这样就可以停在下一次循环的开头：
+
+  ```c
+  (gdb) c
+  ```
+
+* 用`info`命令可以查看已经设置的断点：
+
+  ```c
+  (gdb) b 12
+  Breakpoint 3 at 0x8048411: file main.c, line 12.
+  (gdb) i breakpoints
+  Num     Type           Disp Enb Address    What
+  2       breakpoint     keep y   0x080483c3 in main at main.c:9
+  	breakpoint already hit 1 time
+  3       breakpoint     keep y   0x08048411 in main at main.c:12
+  ```
+
+* 每个断点都有一个编号，可以用编号指定删除某个断点：
+
+  ```c
+  (gdb) delete breakpoints 2
+  (gdb) i breakpoints 
+  Num     Type           Disp Enb Address    What
+  3       breakpoint     keep y   0x08048411 in main at main.c:12
+  ```
+
+* 有时候一个断点暂时不用可以禁用掉而不必删除，这样以后想用的时候可以直接启用，而不必重新从代码里找应该在哪一行设断点：
+
+  ```c
+  (gdb) disable breakpoints 3
+  (gdb) i breakpoints 
+  Num     Type           Disp Enb Address    What
+  3       breakpoint     keep n   0x08048411 in main at main.c:12
+  (gdb) enable 3
+  (gdb) i breakpoints 
+  Num     Type           Disp Enb Address    What
+  3       breakpoint     keep y   0x08048411 in main at main.c:12
+  (gdb) delete breakpoints 
+  Delete all breakpoints? (y or n) y
+  (gdb) i breakpoints
+  No breakpoints or watchpoints.
+  ```
+
+* 可以设置断点在满足某个条件时才激活，，例如我们仍然在循环开头设置断点，但是仅当`sum`不等于0时才中断，然后用`run`命令（简写为`r`）重新从程序开头连续运行：
+
+  ```c
+  (gdb) break 9 if sum != 0
+  Breakpoint 5 at 0x80483c3: file main.c, line 9.
+  (gdb) i breakpoints 
+  Num     Type           Disp Enb Address    What
+  5       breakpoint     keep y   0x080483c3 in main at main.c:9
+  	stop only if sum != 0
+  (gdb) r
+  The program being debugged has been started already.
+  Start it from the beginning? (y or n) y
+  Starting program: /home/akaedu/main 
+  123
+  input=123
+  
+  Breakpoint 5, main () at main.c:9
+  9			scanf("%s", input);
+  1: sum = 123
+  ```
+
+* `gdb`命令：
+
+**表 10.2. gdb基本命令2**
+
+| 命令                       | 描述                                     |
+| -------------------------- | ---------------------------------------- |
+| break（或b） 行号          | 在某一行设置断点                         |
+| break 函数名               | 在某个函数开头设置断点                   |
+| break ... if ...           | 设置条件断点                             |
+| continue（或c）            | 从当前位置开始连续运行程序               |
+| delete breakpoints 断点号  | 删除断点                                 |
+| display 变量名             | 跟踪查看某个变量，每次停下来都显示它的值 |
+| disable breakpoints 断点号 | 禁用断点                                 |
+| enable 断点号              | 启用断点                                 |
+| info（或i） breakpoints    | 查看当前设置了哪些断点                   |
+| run（或r）                 | 从头开始连续运行程序                     |
+| undisplay 跟踪显示号       | 取消跟踪显示                             |
+
+###  习题
+
+* 问：看下面的程序：
+
+  ```
+  #include <stdio.h>
+  
+  int main(void)
+  {
+  	int i;
+  	char str[6] = "hello";
+  	char reverse_str[6] = "";
+  
+  	printf("%s\n", str);
+  	for (i = 0; i < 5; i++)
+  		reverse_str[5-i] = str[i];
+  	printf("%s\n", reverse_str);
+  	return 0;
+  }
+  ```
+
+  首先用字符串`"hello"`初始化一个字符数组`str`（算上`'\0'`共6个字符）。然后用空字符串`""`初始化一个同样长的字符数组`reverse_str`，相当于所有元素用`'\0'`初始化。然后打印`str`，把`str`倒序存入`reverse_str`，再打印`reverse_str`。然而结果并不正确：
+
+  ```
+  $ ./main 
+  hello
+  ```
+
+  我们本来希望`reverse_str`打印出来是`olleh`，结果什么都没有。重点怀疑对象肯定是循环，那么简单验算一下，`i=0`时，`reverse_str[5]=str[0]`，也就是`'h'`，`i=1`时，`reverse_str[4]=str[1]`，也就是`'e'`，依此类推，i=0,1,2,3,4，共5次循环，正好把h,e,l,l,o五个字母给倒过来了，哪里不对了？用`gdb`跟踪循环，找出错误原因并改正。
+
+* 答：
+
+##  四十四、观察点
+
+* 断点是当程序执行到某一代码行时中断，而观察点是当程序访问某个存储单元时中断
+
+* **不知道某个存储单元是在哪里被改动的**，这时候观察点尤其有用
+
+* `gdb`命令：
+
+  **表 10.3. gdb基本命令3**
+
+  | 命令                    | 描述                                                         |
+  | ----------------------- | ------------------------------------------------------------ |
+  | watch                   | 设置观察点                                                   |
+  | info（或i） watchpoints | 查看当前设置了哪些观察点                                     |
+  | x                       | 从某个位置开始打印存储单元的内容，全部当成字节来看，而不区分哪个字节属于哪个变量 |
+
+* ```c
+  (gdb) x/7b input
+  0xbfb8f0a7:	0x31	0x32	0x33	0x34	0x35	0x00	0x00
+  ```
+
+  `x`命令打印指定存储单元的内容。`7b`是打印格式，`b`表示每个字节一组，7表示打印7组
+
+
+
+##  四十五、段错误
+
+* **如果某个函数的局部变量发生访问越界，有可能并不立即产生段错误，而是在函数返回时产生段错误**。
+* 段错误：指访问的内存超出了系统所给这个程序的内存空间
+
+
+
+###  遗留问题
+
+* 问：为什么变量`i`的存储单元紧跟在`input`数组后面？
+* 答：
+* 问：为什么同样是访问越界，有时出段错误有时不出段错误？
+* 答：
+* 问：为什么访问越界的段错误在函数返回时才出现？
+* 答：
+* 问：为什么`scanf`输入整型变量就必须要加&，否则就出段错误，而输入字符串就不要加&？
+* 答：
+
+##  四十六、算法（Algorithm）的概念
+
+* 定义：将一组输入转化成一组输出的一系列计算步骤，其中每个步骤必须能在有限时间内完成
+* **算法是用来解决一类计算问题的，注意是一类问题，而不是一个特定的问题。**
+* 不正确的算法有两种可能
+  * 不正确的算法有两种可能
+  * 二是对于该问题的某些输入，该算法终止时输出的是错误的结果
+
+##  四十七、插入排序
+
+* 举例：玩扑克时抓牌的过程，玩家每拿到一张牌都要插入到手中已有的牌里，使之从小到大排好序。
+
+* **一个重要的前提：手里的牌已经是排好序的**
+
+* 插入排序算法采取增量式（Incremental）的策略解决问题，每次添一个元素到已排序的子序列中，逐渐将整个数组排序完毕，它的时间复杂度是O(n2)。
+
+* 在计算机科学中，**循环不变性**（loop invariant，或“循环不变量”），是一组在循环体内、每次迭代均保持为真的性质，通常被用来证明[程式](https://baike.baidu.com/item/程式)或[伪码](https://baike.baidu.com/item/伪码)的正确性（有时但较少情况下用以证明[算法](https://baike.baidu.com/item/算法)的正确性）。简单说来，“循环不变性”是指在循环开始和循环中，每一次迭代时为真的性质。这意味着，一个正确的循环体，在循环结束时“循环不变性”和“循环终止条件”必须同时成立。
+
+* 某个判断条件满足以下三条准则，它就称为Loop Invariant：
+
+  1. 第一次执行循环体之前该判断条件为真。
+  2. 如果“第N-1次循环之后（或者说第N次循环之前）该判断条件为真”这个前提可以成立，那么就有办法证明第N次循环之后该判断条件仍为真。
+  3. 如果在所有循环结束后该判断条件为真，那么就有办法证明该算法正确地解决了问题。
+
+  上述插入排序算法的Loop Invariant是这样的判断条件：*第`j`次循环之前，子序列a[0..j-1]是排好序的*。
+
+  下面我们验证一下Loop Invariant的三条准则：
+
+  1. 第一次执行循环之前，`j=1`，子序列a[0..j-1]只有一个元素`a[0]`，只有一个元素的序列显然是排好序的。
+  2. 第`j`次循环之前，如果“子序列a[0..j-1]是排好序的”这个前提成立，现在要把`key=a[j]`插进去，按照该算法的步骤，把`a[j-1]`、`a[j-2]`、`a[j-3]`等等比`key`大的元素都依次往后移一个，直到找到合适的位置给`key`插入，就能证明循环结束时子序列a[0..j]是排好序的。就像插扑克牌一样，“手中已有的牌是排好序的”这个前提很重要，如果没有这个前提，就不能证明再插一张牌之后也是排好序的。
+  3. 当循环结束时，`j=LEN`，如果“子序列a[0..j-1]是排好序的”这个前提成立，那就是说a[0..LEN-1]是排好序的，也就是说整个数组`a`的`LEN`个元素都排好序了。
+
+##  四十八、算法的时间复杂度分析
+
+* 在分析算法的时间复杂度时，我们更关心最坏情况而不是最好情况，理由如下：
+  1. 最坏情况给出了算法执行时间的上界，我们可以确信，无论给什么输入，算法的执行时间都不会超过这个上界，这样为比较和分析提供了便利。
+  2. 对于某些算法，最坏情况是最常发生的情况，例如在数据库中查找某个信息的算法，最坏情况就是数据库中根本不存在该信息，都找遍了也没有，而某些应用场合经常要查找一个信息在数据库中存在不存在。
+  3. 虽然最坏情况是一种悲观估计，但是对于很多问题，平均情况和最坏情况的时间复杂度差不多，比如插入排序这个例子，平均情况和最坏情况的时间复杂度都是输入长度n的二次函数。
+* 在运行次数足够多时，运行时间的量级只与最高次幂有关。可以用一种更粗略的方式表示算法的时间复杂度，把系数和低次幂项都省去，线性函数记作Θ(n)，二次函数记作Θ(n2)。
+* Θ(g(n))表示和g(n)同一量级的一类函数，例如所有的二次函数f(n)都和g(n)=n2属于同一量级，都可以用Θ(n2)来表示，甚至有些不是二次函数的也和n2属于同一量级，例如2n2+3lgn。
+* **几种常见的时间复杂度函数按数量级从小到大的顺序依次是：Θ(lgn)，Θ(sqrt(n))，Θ(n)，Θ(nlgn)，Θ(n2)，Θ(n3)，Θ(2n)，Θ(n!)。**lgn通常表示以10为底n的对数
+* 除了Θ-notation之外，表示算法的时间复杂度常用的还有一种Big-O notation。插入排序在最坏情况和平均情况下时间复杂度是Θ(n2)，在最好情况下是Θ(n)，数量级比Θ(n2)要小，那么总结起来在各种情况下插入排序的时间复杂度是O(n2)。Θ的含义和“等于”类似，而大O的含义和“小于等于”类似。
+
+###  问题
+
+* 问：对于Θ-notation来说，Θ(lgn)和Θ(log2n)并无区别（想一想这是为什么），在算法分析中lgn通常表示以2为底n的对数。可是什么算法的时间复杂度里会出现lgn呢？
+* 答：
+
+##  四十九、归并排序（开始看不懂了）
+
+* 归并排序，它采取分而治之（Divide-and-Conquer）的策略，时间复杂度是Θ(nlgn)。
+* 归并排序的步骤如下：
+  1. Divide: 把长度为n的输入序列分成两个长度为n/2的子序列。
+  2. Conquer: 对这两个子序列分别采用归并排序。
+  3. Combine: 将两个排序好的子序列合并成一个最终的排序序列。
 * 
