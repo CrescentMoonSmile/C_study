@@ -1,4 +1,4 @@
-一、收割offer版
+﻿一、收割offer版
 1、LeetCode
 2、牛客网
 3、hihoCoder
@@ -23,3 +23,9 @@
 
 五、学习网站 
 1、Linux C编程一站式学习 http://akaedu.github.io/book/index.html
+
+六、算法
+可视化网站：
+https://visualgo.net/zh
+https://algorithm-visualizer.org/backtracking/hamiltonean-cycles
+https://www.cs.usfca.edu/~galles/visualization/Algorithms.html
